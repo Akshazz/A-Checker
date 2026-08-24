@@ -1,0 +1,6 @@
+{
+  "serverUrl": "http://localhost/storage-health-monitor/php/api/report.php",
+  "apiKey": "83d74e71c6ca08ef1d93b1b9ec567bb9aa4cf308e09fdb7d3fcb446cf6cf5bd3",
+  "smartctlPath": "smartctl",
+  "devices": ["auto"]
+}

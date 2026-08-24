@@ -1,0 +1,14 @@
+{
+  "name": "storage-health-agent",
+  "version": "1.0.0",
+  "description": "Runs smartctl on local drives and reports SMART health to the Storage Health Monitor PHP backend.",
+  "main": "agent.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node agent.js",
+    "scan": "node agent.js"
+  },
+  "dependencies": {
+    "node-fetch": "^2.7.0"
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "serverUrl": "http://localhost/storage-health-monitor/php/api/report.php",
+  "apiKey": "CHANGE_ME_TO_A_RANDOM_STRING",
+  "smartctlPath": "smartctl",
+  "devices": ["auto"]
+}
