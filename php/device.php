@@ -1,61 +1,13 @@
 <?php
-require_once __DIR__ . '/db.php';
-$pdo = get_db();
-
-$id = (int)($_GET['id'] ?? 0);
-$stmt = $pdo->prepare('SELECT * FROM devices WHERE id = ?');
-$stmt->execute([$id]);
-$device = $stmt->fetch();
-
-if (!$device) {
-    http_response_code(404);
-    echo 'Device not found. <a href="index.php">Back</a>';
-    exit;
-}
-
-$stmt = $pdo->prepare('SELECT * FROM scans WHERE device_id = ? ORDER BY scan_date DESC LIMIT 50');
-$stmt->execute([$id]);
-$scans = $stmt->fetchAll();
+require_once __DIR__.'/db.php';$pdo=get_db();$id=(int)($_GET['id']??0);
+$s=$pdo->prepare('SELECT * FROM devices WHERE id=?');$s->execute([$id]);$device=$s->fetch();if(!$device){http_response_code(404);exit('Device not found');}
+$s=$pdo->prepare('SELECT * FROM scans WHERE device_id=? ORDER BY scan_date DESC,id DESC LIMIT 100');$s->execute([$id]);$scans=$s->fetchAll();$latest=$scans[0]??[];
+function h2($v){return htmlspecialchars((string)($v??'—'),ENT_QUOTES,'UTF-8');}
 ?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<title><?= htmlspecialchars($device['device_path']) ?> — Storage Health Monitor</title>
-<link rel="stylesheet" href="assets/style.css">
-</head>
-<body>
-<header>
-    <h1><?= htmlspecialchars($device['hostname']) ?> — <?= htmlspecialchars($device['device_path']) ?></h1>
-    <p><?= htmlspecialchars($device['model'] ?? 'Unknown model') ?> · <?= htmlspecialchars($device['serial_number'] ?? 'no serial') ?> · <a href="index.php">&larr; back to all drives</a></p>
-</header>
-<main>
-    <?php if (!$scans): ?>
-        <div class="empty">No scans recorded for this device yet.</div>
-    <?php else: ?>
-    <table>
-        <thead>
-        <tr>
-            <th>Date</th><th>Status</th><th>Temp</th><th>Power-On Hrs</th>
-            <th>Reallocated</th><th>Pending</th><th>Uncorrectable</th><th>Wear</th>
-        </tr>
-        </thead>
-        <tbody>
-        <?php foreach ($scans as $s): ?>
-        <tr>
-            <td><?= htmlspecialchars($s['scan_date']) ?></td>
-            <td><span class="badge <?= health_class($s['health_status']) ?>"><?= htmlspecialchars($s['health_status']) ?></span></td>
-            <td><?= $s['temperature_c'] !== null ? htmlspecialchars($s['temperature_c']) . '°C' : '—' ?></td>
-            <td><?= $s['power_on_hours'] ?? '—' ?></td>
-            <td><?= $s['reallocated_sector_count'] ?? '—' ?></td>
-            <td><?= $s['pending_sector_count'] ?? '—' ?></td>
-            <td><?= $s['uncorrectable_sector_count'] ?? '—' ?></td>
-            <td><?= $s['wear_level_percent'] !== null ? htmlspecialchars($s['wear_level_percent']) . '%' : '—' ?></td>
-        </tr>
-        <?php endforeach; ?>
-        </tbody>
-    </table>
-    <?php endif; ?>
-</main>
-</body>
-</html>
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title><?=h2($device['model']??'Drive')?> · Storage Health Pro</title><link rel="stylesheet" href="assets/style.css?v=20260824.2"></head><body>
+<header class="topbar"><div class="brand-wrap"><div class="brand-mark"><span></span><span></span><span></span></div><div><h1>Storage Health <strong>Pro</strong></h1><p>Drive profile · SMART history · health telemetry</p></div></div><div class="header-actions"><a class="btn" href="index.php">← Dashboard</a></div></header>
+<main class="shell"><section class="hero"><div><span class="eyebrow">DRIVE PROFILE</span><h2><?=h2($device['model']??'Unknown model')?></h2><p><?=h2($device['device_path'])?> · <?=h2($device['hostname'])?> · <?=h2($device['interface_type']??'Unknown interface')?></p></div></section>
+<section class="summary-grid"><article class="summary-card green"><div class="summary-icon">✓</div><div><span>Health score</span><strong><?=h2($latest['health_score']??'—')?><?php if(isset($latest['health_score'])):?>%<?php endif;?></strong><small><?=h2($latest['health_status']??'UNKNOWN')?></small></div></article><article class="summary-card blue"><div class="summary-icon">℃</div><div><span>Temperature</span><strong><?=h2($latest['temperature_c']??'—')?><?php if(isset($latest['temperature_c'])):?>°C<?php endif;?></strong><small>Latest controller reading</small></div></article><article class="summary-card purple"><div class="summary-icon">◷</div><div><span>Power-on</span><strong><?=h2($latest['power_on_hours']??'—')?></strong><small>Reported hours</small></div></article><article class="summary-card amber"><div class="summary-icon">↘</div><div><span>Wear / life</span><strong><?=h2($latest['wear_level_percent']??'—')?><?php if(isset($latest['wear_level_percent'])):?>%<?php endif;?></strong><small>SSD/NVMe where available</small></div></article></section>
+<section class="panel"><div class="panel-head"><div><span class="eyebrow">HEALTH HISTORY</span><h3>Health trend</h3><p>Latest 100 reported scans</p></div><span class="muted"><?=count($scans)?> scan records</span></div><canvas id="chart" height="140"></canvas></section>
+<section class="panel"><div class="panel-head"><div><span class="eyebrow">SMART HISTORY</span><h3>Scan history</h3><p>Read-only diagnostic records</p></div></div><div class="table-wrap"><table><thead><tr><th>Date</th><th>Status</th><th>Score</th><th>Temp</th><th>Reallocated</th><th>Pending</th><th>Uncorrectable</th><th>Wear</th><th>Self-test</th></tr></thead><tbody><?php foreach($scans as $x):?><tr><td><?=h2($x['scan_date'])?></td><td><span class="badge <?=health_class($x['health_status']??'UNKNOWN')?>"><?=h2($x['health_status']??'UNKNOWN')?></span></td><td><?=h2($x['health_score'])?></td><td><?=h2($x['temperature_c'])?><?php if($x['temperature_c']!==null):?>°C<?php endif;?></td><td><?=h2($x['reallocated_sector_count'])?></td><td><?=h2($x['pending_sector_count'])?></td><td><?=h2($x['uncorrectable_sector_count'])?></td><td><?=h2($x['wear_level_percent'])?><?php if($x['wear_level_percent']!==null):?>%<?php endif;?></td><td><?=h2($x['self_test_status'])?></td></tr><?php endforeach;?></tbody></table></div></section></main>
+<script>const data=<?=json_encode(array_reverse(array_map(fn($x)=>['s'=>(int)($x['health_score']??0)],$scans)))?>,c=document.getElementById('chart'),ctx=c.getContext('2d');function draw(){const W=c.clientWidth,H=140,d=devicePixelRatio||1;c.width=W*d;c.height=H*d;ctx.setTransform(d,0,0,d,0,0);ctx.clearRect(0,0,W,H);ctx.strokeStyle='#2c4666';ctx.lineWidth=1;for(let i=0;i<4;i++){const y=18+i*(H-35)/3;ctx.beginPath();ctx.moveTo(35,y);ctx.lineTo(W-10,y);ctx.stroke()}ctx.strokeStyle='#70a5ff';ctx.lineWidth=2;ctx.beginPath();data.forEach((p,i)=>{const x=data.length<2?W/2:40+i*(W-55)/(data.length-1),y=H-18-(Math.max(0,Math.min(100,p.s))/100)*(H-40);i?ctx.lineTo(x,y):ctx.moveTo(x,y)});ctx.stroke();ctx.fillStyle='#74849a';ctx.font='10px Segoe UI';ctx.fillText('100',6,21);ctx.fillText('0',15,H-15)}draw();addEventListener('resize',draw);</script></body></html>

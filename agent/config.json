@@ -1,6 +1,11 @@
 {
-  "serverUrl": "http://localhost/storage-health-monitor/php/api/report.php",
-  "apiKey": "CHANGE_ME_TO_A_RANDOM_STRING",
+  "serverUrl": "http://localhost/A-Checker/php/api/report.php",
+  "apiKey": "__API_KEY__",
   "smartctlPath": "smartctl",
-  "devices": ["auto"]
+  "devices": [
+    "auto"
+  ],
+  "reportInventoryOnly": true,
+  "scanIntervalMs": 5000,
+  "once": false
 }

@@ -21,3 +21,5 @@ function health_class(string $status): string {
         default => 'unknown',
     };
 }
+
+function bytes_human($bytes): string { if($bytes===null) return '—'; $u=['B','KB','MB','GB','TB','PB']; $i=0; $n=(float)$bytes; while($n>=1024&&$i<count($u)-1){$n/=1024;$i++;} return number_format($n,$i?1:0).' '.$u[$i]; }

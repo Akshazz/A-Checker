@@ -50,6 +50,14 @@ the setup script doesn't have:
 - **macOS:** `brew install smartmontools`
 - **Linux:** `sudo apt install smartmontools` (or `dnf`/`yum` equivalent)
 
+## If you installed the project as `A-Checker`
+
+If your XAMPP URL is `http://localhost/A-Checker/`, the agent endpoint must be:
+`http://localhost/A-Checker/php/api/report.php`.
+Do not leave the generated endpoint pointing at `/storage-health-monitor/` after renaming the XAMPP folder.
+
+If you imported `database/schema.sql` manually, the API key must match `agent/config.json`. The default development key in this package is `__API_KEY__`; for production, use the setup script to generate a random key.
+
 ## Running a scan
 
 From the `agent` folder, on any machine you want monitored (config.json is
@@ -108,3 +116,27 @@ Safe to run again — it will re-copy the app files and generate a new API
 key/database entry each time. If you've already got scan history you want
 to keep, skip re-running the installer and just reuse the existing
 `agent/config.json`.
+
+
+## Advanced edition
+
+This version keeps the original SMART architecture but adds:
+- Health score (0-100) derived from SMART warnings and SSD wear.
+- SMART self-test status and additional SMART flags.
+- Windows partition/volume inventory via PowerShell (`Get-Partition` / `Get-Volume`).
+- Linux partition inventory via `lsblk`.
+- Partition size/free-space/usage/filesystem/label/health history in MySQL.
+- Dashboard search, status filtering and 10-row pagination.
+- Drive detail history graph and expanded SMART history.
+- JSON API with partition summaries.
+- Read-only partition management UI.
+
+### About the HDSentinel-inspired design
+The feature set is inspired by publicly documented concepts from Hard Disk Sentinel: health/performance monitoring, temperature and SMART values, history, alerts/tests and partition information. It does not copy HDSentinel code or proprietary implementation. HDSentinel documents real-time health/temperature/SMART monitoring, history, tests and partition information on its official site.
+
+### Partition safety
+The web partition manager is intentionally **read-only**. It does not expose format, delete, resize, initialize, or destructive surface-test commands through the browser. Those operations can cause data loss and should be performed with an explicit local Windows disk-management tool after backups.
+
+### Recent cleanup (this build)
+- Removed the partition-manager buttons that only *looked* like they could modify a disk (Create, Resize, Extend, Split, Merge, Format, Change Letter, File System Check, Clone, GPT/MBR Convert, BitLocker, Delete). They never executed anything server-side — clicking them just wrote a fake "queued" message to a log — so they were confusing UI clutter on a tool that's read-only by design. The partition panel now only offers **Refresh** and **Properties**, plus a note pointing to a real local disk tool if someone actually needs to change a partition.
+- Scan Storage no longer uses a CAPTCHA. Scanning is treated as a read-only monitoring operation: the user sees a clear safety confirmation and can start the scan directly. If future features are added that modify, delete, format, resize, move, or otherwise change storage data, those destructive operations should use a separate explicit confirmation flow appropriate to the action.
