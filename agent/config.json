@@ -1,11 +1,11 @@
 {
-  "serverUrl": "http://localhost/A-Checker/php/api/report.php",
-  "apiKey": "__API_KEY__",
-  "smartctlPath": "smartctl",
-  "devices": [
-    "auto"
-  ],
-  "reportInventoryOnly": true,
-  "scanIntervalMs": 5000,
-  "once": false
+    "serverUrl": "http://localhost/a-checker/php/api/report.php",
+    "apiKey": "__API_KEY__",
+    "smartctlPath": "smartctl",
+    "devices": [
+        "auto"
+    ],
+    "reportInventoryOnly": true,
+    "scanIntervalMs": 5000,
+    "once": false
 }

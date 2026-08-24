@@ -36,6 +36,8 @@ TARGET="$HTDOCS/storage-health-monitor"
 echo "Installing app to: $TARGET"
 mkdir -p "$TARGET"
 cp -r "$SCRIPT_DIR/php/"* "$TARGET/"
+mkdir -p "$TARGET/agent"
+cp -r "$SCRIPT_DIR/agent/"* "$TARGET/agent/"
 
 # --- 2. Generate a random API key ---
 if command -v openssl >/dev/null 2>&1; then
@@ -82,7 +84,7 @@ sed -i.bak "s/define('DB_PASS', '');/define('DB_PASS', '$ESCAPED_PASS');/" "$CON
 rm -f "$CONFIG_FILE.bak"
 
 # --- 6. Generate agent config.json automatically ---
-AGENT_DIR="$SCRIPT_DIR/agent"
+AGENT_DIR="$TARGET/agent"
 cat > "$AGENT_DIR/config.json" <<EOF
 {
   "serverUrl": "http://localhost/storage-health-monitor/api/report.php",

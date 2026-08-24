@@ -13,3 +13,19 @@ CREATE TABLE IF NOT EXISTS partitions (
  usage_percent DECIMAL(6,2) NULL, health VARCHAR(100), recorded_at DATETIME DEFAULT CURRENT_TIMESTAMP,
  INDEX idx_part_host(hostname), INDEX idx_part_recorded(recorded_at)
 ) ENGINE=InnoDB;
+
+
+CREATE TABLE IF NOT EXISTS hardware_devices (
+ id BIGINT AUTO_INCREMENT PRIMARY KEY,
+ hostname VARCHAR(255) NOT NULL,
+ category VARCHAR(40) NOT NULL,
+ identifier VARCHAR(255) NOT NULL,
+ name VARCHAR(255),
+ status VARCHAR(40) DEFAULT 'UNKNOWN',
+ details_json LONGTEXT,
+ first_seen DATETIME DEFAULT CURRENT_TIMESTAMP,
+ last_seen DATETIME DEFAULT CURRENT_TIMESTAMP,
+ UNIQUE KEY unique_hardware (hostname, category, identifier),
+ INDEX idx_hardware_category (category),
+ INDEX idx_hardware_seen (last_seen)
+) ENGINE=InnoDB;

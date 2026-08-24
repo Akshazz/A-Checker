@@ -39,3 +39,18 @@ CREATE TABLE IF NOT EXISTS api_keys (
  api_key VARCHAR(64) NOT NULL UNIQUE, created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB;
 INSERT INTO api_keys(label,api_key) VALUES('default-agent-key','__API_KEY__');
+
+CREATE TABLE IF NOT EXISTS hardware_devices (
+ id BIGINT AUTO_INCREMENT PRIMARY KEY,
+ hostname VARCHAR(255) NOT NULL,
+ category VARCHAR(40) NOT NULL,
+ identifier VARCHAR(255) NOT NULL,
+ name VARCHAR(255),
+ status VARCHAR(40) DEFAULT 'UNKNOWN',
+ details_json LONGTEXT,
+ first_seen DATETIME DEFAULT CURRENT_TIMESTAMP,
+ last_seen DATETIME DEFAULT CURRENT_TIMESTAMP,
+ UNIQUE KEY unique_hardware (hostname, category, identifier),
+ INDEX idx_hardware_category (category),
+ INDEX idx_hardware_seen (last_seen)
+) ENGINE=InnoDB;

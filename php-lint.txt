@@ -1,0 +1,9 @@
+No syntax errors detected in /mnt/data/currentfix/php/db.php
+No syntax errors detected in /mnt/data/currentfix/php/index.php
+No syntax errors detected in /mnt/data/currentfix/php/api/hardware.php
+No syntax errors detected in /mnt/data/currentfix/php/api/devices.php
+No syntax errors detected in /mnt/data/currentfix/php/api/scan.php
+No syntax errors detected in /mnt/data/currentfix/php/api/report.php
+No syntax errors detected in /mnt/data/currentfix/php/api/files.php
+No syntax errors detected in /mnt/data/currentfix/php/config.php
+No syntax errors detected in /mnt/data/currentfix/php/device.php

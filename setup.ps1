@@ -38,6 +38,8 @@ $Target = Join-Path $Htdocs "storage-health-monitor"
 Write-Host "Installing app to: $Target"
 New-Item -ItemType Directory -Force -Path $Target | Out-Null
 Copy-Item -Path (Join-Path $ScriptDir "php\*") -Destination $Target -Recurse -Force
+New-Item -ItemType Directory -Force -Path (Join-Path $Target "agent") | Out-Null
+Copy-Item -Path (Join-Path $ScriptDir "agent\*") -Destination (Join-Path $Target "agent") -Recurse -Force
 
 # --- 2. Generate a random API key ---
 $bytes = New-Object byte[] 32
@@ -81,7 +83,7 @@ $ConfigContent = $ConfigContent -replace "define\('DB_PASS', ''\);", "define('DB
 Set-Content -Path $ConfigFile -Value $ConfigContent -Encoding UTF8
 
 # --- 6. Generate agent config.json automatically ---
-$AgentDir = Join-Path $ScriptDir "agent"
+$AgentDir = Join-Path $Target "agent"
 $AgentConfig = @"
 {
   "serverUrl": "http://localhost/storage-health-monitor/api/report.php",
